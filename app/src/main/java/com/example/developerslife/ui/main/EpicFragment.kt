@@ -7,6 +7,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
@@ -24,6 +26,7 @@ import com.example.developerslife.R
 import com.example.developerslife.models.DevResponse
 import com.example.developerslife.models.DevResponseInfo
 import com.example.developerslife.services.ApiService
+import com.example.developerslife.services.CheckConnect
 import com.example.developerslife.services.Constants
 import com.google.android.material.button.MaterialButton
 import kotlinx.serialization.decodeFromString
@@ -39,6 +42,7 @@ class EpicFragment(val position: Int) : Fragment() {
     private var wasLoaded = false;
     private val model = Model()
     private val apiService = ApiService()
+    private val checkConnect = CheckConnect()
 
     private var pageCounter = -1
 
@@ -50,8 +54,30 @@ class EpicFragment(val position: Int) : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         val thiscontext = requireContext()
         val view = inflater.inflate(R.layout.item_page, container, false)
+
+        val noInternetView = view.findViewById<RelativeLayout>(R.id.no_internet)
+        val noInternetBtn = view.findViewById<MaterialButton>(R.id.no_internet_button)
+        val showableView = view.findViewById<RelativeLayout>(R.id.showable)
+        val showableBtnsView = view.findViewById<LinearLayout>(R.id.showable_btns)
+
+        var connect = checkConnect.isOnline(thiscontext)
+        if (!connect) {
+            noInternetView.visibility = View.VISIBLE
+            showableView.visibility = View.INVISIBLE
+            showableBtnsView.visibility = View.INVISIBLE
+        }
+
+        noInternetBtn.setOnClickListener {
+            if (checkConnect.isOnline(thiscontext)) {
+                noInternetView.visibility = View.INVISIBLE
+                showableView.visibility = View.VISIBLE
+                showableBtnsView.visibility = View.VISIBLE
+            }
+        }
+
 
         val imageShow = view.findViewById<ImageView>(R.id.image_show);
         val textShow = view.findViewById<TextView>(R.id.text_show);
